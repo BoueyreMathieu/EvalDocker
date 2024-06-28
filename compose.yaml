@@ -1,0 +1,34 @@
+services:
+
+  nextcloud:
+    build:
+      context: .
+    container_name: nextcloud
+    restart: unless-stopped
+    env_file: ".env"
+    depends_on:
+      - nextclouddb
+    ports:
+      - 8000:80
+    volumes:
+      - ./html:/var/www/html
+    #   - ./custom_apps:/var/www/html/custom_apps
+    #   - ./config:/var/www/html/config
+    #   - ./data:/var/www/html/data
+
+  nextclouddb:
+    image: mariadb
+    container_name: nextcloud-db
+    restart: unless-stopped
+    env_file: ".env"
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb -uroot --password=$$MYSQL_ROOT_PASSWORD -e 'select 1'"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./nextclouddb:/var/lib/mysql
+
+volumes:
+  nextclouddb:
+  nextcloud:
